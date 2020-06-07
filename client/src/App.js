@@ -1,26 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import axios from "axios";
+import { saveAs } from "file-saver";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    name: "",
+    recieptId: "",
+    price1: "",
+    price2: "",
+  };
+
+  handleChange = ({ target: { value, name } }) =>
+    this.setState({ [name]: value });
+
+  createAndDownloadPdf = () => {
+    axios
+      .post("/create-pdf", this.state)
+      .then(() => axios.get("fetch-pdf", { responseType: "blob" }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+
+        saveAs(pdfBlob, "newPdf.pdf");
+      });
+  };
+
+  render() {
+    return (
+      <div className="App">
+        <input
+          type="text"
+          placeholder="Name"
+          name="name"
+          onChange={this.handleChange}
+        />
+        <input
+          type="number"
+          placeholder="Reciept ID"
+          name="recieptId"
+          onChange={this.handleChange}
+        />
+        <input
+          type="number"
+          placeholder="Price 1"
+          name="price1"
+          onChange={this.handleChange}
+        />
+        <input
+          type="number"
+          placeholder="Price 2"
+          name="price2"
+          onChange={this.handleChange}
+        />
+        <button onClick={this.createAndDownloadPdf}>Download PDF</button>
+      </div>
+    );
+  }
 }
 
 export default App;
